@@ -150,6 +150,10 @@
     <div id = "messageBoard" class= "container main">
         <div id="conn" class="">
             <p class='subtitle'>历史留言</p>
+            <select id="sortbytime" onchange="getMessageList()">
+                <option value="1" selected>按时间最近显示</option>
+                <option value="2">按时间最远显示</option>
+            </select>
             <div class="" style="z-index:2;"></div>
              <ol id = "messageList">
 
@@ -252,8 +256,10 @@
         {
             getMessageList();
         })
-    })
+    });
+
     function getMessageList() {
+        var list = [];
         $.ajax({
             url: "/getMessageList/",
             type: "POST",
@@ -261,8 +267,31 @@
             data: {},
             dataType:"json",
             success: function (data) {
-                $("#messageList").html("");
-                for(let i = 0;i < data.length;i ++){
+
+                if($("#sortbytime").val() == "1"){
+                    data.sort(sortByDesTime);
+                }
+                if($("#sortbytime").val() == "2"){
+                    data.sort(sortByAscTime);
+                }
+                showMessageList(data);
+
+            }
+        })
+        return list;
+    }
+
+    function sortByAscTime(x,y){
+        return x[5].localeCompare(y[5]);
+    }
+
+    function sortByDesTime(x,y){
+        return y[5].localeCompare(x[5]);
+    }
+
+    function showMessageList(data){
+        $("#messageList").html("");
+        for(let i = 0;i < data.length;i ++){
                     var num = Math.floor(Math.random() * 5) + 1;
                     $("#messageList").append("<li>\n" +
                         "                    <div class='div_left'><img src='/static/assets/images/profile/profile_" + num + ".jpg' alt='tupian' width = '50' height = '50'>" +data[i][1] + "</div>\n" +
@@ -272,8 +301,6 @@
                         "                    </div>\n" +
                         "                <br><hr></li>");
                 }
-            }
-        })
     }
 </script>
 
